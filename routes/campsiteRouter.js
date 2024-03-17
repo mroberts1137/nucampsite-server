@@ -43,9 +43,15 @@ campsiteRouter
   .get((req, res, next) => {
     Campsite.findById(req.params.campsiteId)
       .then((campsite) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(campsite);
+        if (campsite) {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json(campsite);
+        } else {
+          err = new Error(`Campsite ${req.params.campsiteId} not found`);
+          err.status = 404;
+          return next(err);
+        }
       })
       .catch((err) => next(err));
   })
