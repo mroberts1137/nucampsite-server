@@ -17,7 +17,7 @@ promotionRouter
       })
       .catch((err) => next(err));
   })
-  .post(authenticate.verifyUser, (req, res, next) => {
+  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Promotion.create(req.body)
       .then((promotion) => {
         console.log(`Partner Created: ${promotion}`);
@@ -32,15 +32,19 @@ promotionRouter
     res.setHeader('Content-Type', 'text/plain');
     res.end('PUT operation not supported on /promotions');
   })
-  .delete(authenticate.verifyUser, (req, res, next) => {
-    Promotion.deleteMany()
-      .then((result) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(result);
-      })
-      .catch((err) => next(err));
-  });
+  .delete(
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      Promotion.deleteMany()
+        .then((result) => {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json(result);
+        })
+        .catch((err) => next(err));
+    }
+  );
 
 // Route 1: localhost:3000/promotions/fds67f6ds79af9dsa
 
@@ -68,7 +72,7 @@ promotionRouter
       `POST operation is not supported on /partners/${req.params.promotionId}`
     );
   })
-  .put(authenticate.verifyUser, (req, res, next) => {
+  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Promotion.findByIdAndUpdate(
       req.params.promotionId,
       {
@@ -89,20 +93,24 @@ promotionRouter
       })
       .catch((err) => next(err));
   })
-  .delete(authenticate.verifyUser, (req, res, next) => {
-    Promotion.findByIdAndDelete(req.params.promotionId)
-      .then((result) => {
-        if (result) {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.json(result);
-        } else {
-          err = new Error(`Promotion ${req.params.promotionId} not Found`);
-          err.status = 404;
-          return next(err);
-        }
-      })
-      .catch((err) => next(err));
-  });
+  .delete(
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      Promotion.findByIdAndDelete(req.params.promotionId)
+        .then((result) => {
+          if (result) {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(result);
+          } else {
+            err = new Error(`Promotion ${req.params.promotionId} not Found`);
+            err.status = 404;
+            return next(err);
+          }
+        })
+        .catch((err) => next(err));
+    }
+  );
 
 module.exports = promotionRouter;

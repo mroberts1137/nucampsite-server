@@ -17,7 +17,7 @@ partnerRouter
       })
       .catch((err) => next(err));
   })
-  .post(authenticate.verifyUser, (req, res, next) => {
+  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Partner.create(req.body)
       .then((partner) => {
         console.log(`Partner Created: ${partner}`);
@@ -32,15 +32,19 @@ partnerRouter
     res.setHeader('Content-Type', 'text/plain');
     res.end('PUT operation not supported on /partners');
   })
-  .delete(authenticate.verifyUser, (req, res, next) => {
-    Partner.deleteMany()
-      .then((result) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(result);
-      })
-      .catch((err) => next(err));
-  });
+  .delete(
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      Partner.deleteMany()
+        .then((result) => {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json(result);
+        })
+        .catch((err) => next(err));
+    }
+  );
 
 // Route 2: localhost:3000/partners/h89fs9h43h8j89f4
 
@@ -68,7 +72,7 @@ partnerRouter
       `POST operation is not supported on /partners/${req.params.partnerId}`
     );
   })
-  .put(authenticate.verifyUser, (req, res, next) => {
+  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Partner.findByIdAndUpdate(
       req.params.partnerId,
       {
@@ -89,20 +93,24 @@ partnerRouter
       })
       .catch((err) => next(err));
   })
-  .delete(authenticate.verifyUser, (req, res, next) => {
-    Partner.findByIdAndDelete(req.params.partnerId)
-      .then((result) => {
-        if (result) {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.json(result);
-        } else {
-          err = new Error(`Partner ${req.params.partnerId} not found`);
-          err.status = 404;
-          return next(err);
-        }
-      })
-      .catch((err) => next(err));
-  });
+  .delete(
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      Partner.findByIdAndDelete(req.params.partnerId)
+        .then((result) => {
+          if (result) {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(result);
+          } else {
+            err = new Error(`Partner ${req.params.partnerId} not found`);
+            err.status = 404;
+            return next(err);
+          }
+        })
+        .catch((err) => next(err));
+    }
+  );
 
 module.exports = partnerRouter;
