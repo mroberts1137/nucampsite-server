@@ -2,11 +2,13 @@ const express = require('express');
 const userRouter = express.Router();
 const passport = require('passport');
 const authenticate = require('../authenticate');
+const cors = require('./cors');
 
 const User = require('../models/user');
 
 userRouter.get(
   '/',
+  cors.corsWithOptions,
   authenticate.verifyUser,
   authenticate.verifyAdmin,
   (req, res, next) => {
@@ -19,7 +21,7 @@ userRouter.get(
   }
 );
 
-userRouter.post('/signup', (req, res) => {
+userRouter.post('/signup', cors.corsWithOptions, (req, res) => {
   User.register(
     new User({ username: req.body.username }),
     req.body.password,
@@ -50,15 +52,20 @@ userRouter.post('/signup', (req, res) => {
   );
 });
 
-userRouter.post('/login', passport.authenticate('local'), (req, res) => {
-  const token = authenticate.getToken({ _id: req.user._id });
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.json({
-    success: true,
-    token: token,
-    status: 'You are successfully logged in!'
-  });
-});
+userRouter.post(
+  '/login',
+  cors.corsWithOptions,
+  passport.authenticate('local'),
+  (req, res) => {
+    const token = authenticate.getToken({ _id: req.user._id });
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json({
+      success: true,
+      token: token,
+      status: 'You are successfully logged in!'
+    });
+  }
+);
 
 module.exports = userRouter;
