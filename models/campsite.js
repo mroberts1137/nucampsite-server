@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-require('mongoose-currency').loadType(mongoose);
-const Currency = mongoose.Types.Currency;
-
 const commentSchema = new Schema(
   {
     rating: {
@@ -46,7 +43,7 @@ const campsiteSchema = new Schema(
       required: true
     },
     cost: {
-      type: Currency,
+      type: Number,
       required: true,
       min: 0
     },
